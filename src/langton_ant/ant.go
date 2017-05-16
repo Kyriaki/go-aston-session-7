@@ -53,8 +53,7 @@ func main() {
 
 	cWhite:=color.Gray{255}
 	cBlack:=color.Gray{0}	
-	steps= 100000
-    // Steps wanted : 10 - 100 - 1000 - 10000 - 100000
+	steps= 100000    // Steps wanted : 10 - 100 - 1000 - 10000 - 100000
 
 	bounds := image.Rect(0, 0, sizeX, sizeY)
 	im := image.NewGray(bounds)
@@ -62,20 +61,26 @@ func main() {
 	pos := image.Point{posX, posY}
 	im.SetGray(pos.X, pos.Y, cWhite)
     direction := up
+    f1, err := os.Create("hist.txt")
+
+    //Creation of the map, to check repetitions of points 
+    posMap := make(map[image.Point]int)
 
 	/***** Algorithm implementation *****/
     // Loop on the number of steps 
 	for i := 0; i < steps; i++{  
-        switch im.At(pos.X, pos.Y).(color.Gray).Y{
         //switch to determine direction depending on the color of the case the ant is on
+        switch im.At(pos.X, pos.Y).(color.Gray).Y{
 		case cWhite.Y:
 			im.SetGray(pos.X, pos.Y, cBlack)	
 			direction++
 		case cBlack.Y:
 			im.SetGray(pos.X, pos.Y, cWhite)
 			direction--
-
 		}
+
+        //adding the position in the map, if it's already in, increment the count
+        posMap[pos]++
 
         //switch to determine the ant's movement depending on the direction:
         //With the constants defined above : 1 = right; 2 = down; 3 = left; 4 = up; 5 = right and so on
@@ -98,6 +103,21 @@ func main() {
 
 		}
 	}
+
+    /***** File writing for the position stocked in the map *****/
+    // We loop on the set of keys (which are image.Point objects) and test the values
+    // If the point repeats itself in the map, we write it in hist.txt 
+    posToWrite := ""
+    for key := range posMap {
+        if posMap[key] != 1 {
+            posToWrite = "(" + strconv.Itoa(key.X) + "," + strconv.Itoa(key.Y) + ") : " + strconv.Itoa(posMap[key]) + " times\n"
+            w, err := f1.WriteString(posToWrite)
+            if w == 0 {fmt.Println("")}
+            if err != nil {fmt.Println(err)}
+        }
+    }
+ 
+    defer f1.Close()
 
     /***** Graphic generation *****/
 	f, err := os.Create("ant.png")
