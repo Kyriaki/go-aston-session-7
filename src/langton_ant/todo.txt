@@ -1,0 +1,1 @@
+Check the apparition of the patterns in high nnumber of steps (100000) => highway exists now
