@@ -1,0 +1,13 @@
+=> Authentication
+	The client types username, password
+	request sent on server : AUTH cnonce(generated randomly) username(given by client) response(computed with formula)
+	response given by server : BADAUTH or OK
+
+	Details
+		when client presses enter ==> a first calculation is made on client side
+			using the cnonce, the username, and the password
+			it generates a first response that is then given to the server : giving AUTH cnonce(the same) username and response
+		then the server receives the request, recognizes the username
+			and recomputes the hash(sha1) with the cnonce, the username and the password stocked on the server
+			if the reponse given is the same as the response computed ==> OK
+			else ==> BADAUTH
