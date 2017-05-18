@@ -11,3 +11,15 @@
 			and recomputes the hash(sha1) with the cnonce, the username and the password stocked on the server
 			if the reponse given is the same as the response computed ==> OK
 			else ==> BADAUTH
+		the :  in the formula is used to split the values
+		In this case it is used in the formula
+
+=> Client side
+	Client types SERIALIZE or UNSERIALIZE
+		then the programming language
+		then the data to (un)serialize
+		then the output format (JSON, XML, Binary)
+		then the response from the auth + the username 
+
+=> server side
+	when a client logs, we send him a cnonce 
