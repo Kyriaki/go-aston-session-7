@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"io"
+	"os"
+	"bufio"
 	"net"
 	"crypto/sha1"
 	"encoding/hex"
@@ -21,23 +23,34 @@ func main() {
 		return
 	}
 
-    cn := make([]byte, 0, 16) // cnonce buffer
-    reader := make([]byte, 256)     // reading bufufer
- 
-    n, err := conn.Read(reader)
-    if err != nil {
-        fmt.Println("read error:", err)
-    }
-    if n != 0{
-    	cn = append(cn, reader[:16]...)	
-    }
+	cn := make([]byte, 0, 16) // cnonce buffer
+	reader := make([]byte, 256)	 // reading bufufer
+
+
+	n, err := conn.Read(reader)
+	if err != nil {
+		fmt.Println("read error:", err)
+	}
+	if n != 0{
+		cn = append(cn, reader[:16]...)	
+	}
 
 	cnonce := string(cn)
 	resp :=computeResponse(ip, username, password, cnonce)
-	conn.Write([]byte("AUTH " + username +" " + resp))
-	fmt.Println("AUTH " + username + " " + resp)
+	if resp != ""{
+
+	}
+//	conn.Write([]byte("AUTH " + username +" " + resp))
+//	fmt.Println("AUTH " + username + " " + resp)
 	for{
-		
+		buf := bufio.NewReader(os.Stdin)
+		fmt.Print("swagsoinsoin tmtc t connecté frr entre la requete bismillah\n=> ")
+		query, err := buf.ReadString('\n')
+		if err != nil{
+			fmt.Println(err)
+		}
+		//conn.Write([]byte(query))
+		fmt.Fprintf(conn, query)
 	}
 }
 

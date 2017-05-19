@@ -3,29 +3,37 @@ package main
 import (
 	"fmt"
 	"io"
+	"bufio"
 	"net"
+	"time"
 	"strings"
 	"strconv"
 	"math/rand"
 	"crypto/sha1"
 	"encoding/hex"
 )
-func handleConnection(conn net.Conn) {
-	auth := make([]byte, 0, 1024) // authRequest buffer
-    reader := make([]byte, 256)     // reading bufufer
- 
-    n, err := conn.Read(reader)
-    if err != nil {
-        fmt.Println("read error:", err)
-    }
-    if n != 0{
-    	auth = append(auth, reader[:n]...)	
-    }
-    fmt.Println(string(auth))
+func handleQueries(query string, conn net.Conn, cnonce string, clientPass string ) {
+	// auth := make([]byte, 0, 1024) // authRequest buffer
+	// reader := make([]byte, 256)	 // reading bufufer
+
+		// n, _ := bufio.NewReader(conn).ReadString('\n')
+		// if n != ""{
+			// auth = append(auth, reader[:n]...)
+			// serverResponse := authClient(string(auth), cnonce, clientPass)
+			// fmt.Println(serverResponse)
+		// 	fmt.Print(n)
+		// }
+	// if err != nil {
+	// 	fmt.Println("read error:", err)
+	// }
+	fmt.Print(query)
+	
 }
+
 
 func main() {
 	
+
 	cltPsw := "go"
 	src := rand.NewSource(16374012946015784)
 
@@ -41,23 +49,18 @@ func main() {
 			fmt.Println(err)
 		}
 		fmt.Println("someone connected")
-		
+		buf := bufio.NewReader(conn)
+
 		cnonce := generateCNonce(src)
-		conn.Write([]byte(cnonce))
+		conn.Write([]byte(cnonce))	
 
-		auth := make([]byte, 0, 1024) // authRequest buffer
-	    reader := make([]byte, 256)     // reading bufufer
-	 
-	    n, err := conn.Read(reader)
-	    if err != nil {
-	        fmt.Println("read error:", err)
-	    }
-
-	    if n != 0{
-	    	auth = append(auth, reader[:n]...)
-	    }
-	    serverResponse := authClient(string(auth), cnonce, cltPsw)
-		fmt.Println(serverResponse)
+		for x := range time.Tick(50*time.Millisecond){
+		 	_ = x
+			n, _ := buf.ReadString('\n')
+			if n != ""{
+				handleQueries(n, conn, cnonce, cltPsw)	
+			}
+		}
 	}
 }
 
