@@ -12,34 +12,15 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 )
-func handleQueries(query string, conn net.Conn, cnonce string, clientPass string ) {
-	// auth := make([]byte, 0, 1024) // authRequest buffer
-	// reader := make([]byte, 256)	 // reading bufufer
-
-		// n, _ := bufio.NewReader(conn).ReadString('\n')
-		// if n != ""{
-			// auth = append(auth, reader[:n]...)
-			// serverResponse := authClient(string(auth), cnonce, clientPass)
-			// fmt.Println(serverResponse)
-		// 	fmt.Print(n)
-		// }
-	// if err != nil {
-	// 	fmt.Println("read error:", err)
-	// }
-	fmt.Print(query)
-	
-}
-
 
 func main() {
-	
 
 	cltPsw := "go"
 	src := rand.NewSource(16374012946015784)
 
 	ln, err := net.Listen("tcp", ":6969")
 	if err != nil {
-		fmt.Println("ERROR")
+		fmt.Println(err)
 		return
 	}
 
@@ -58,7 +39,7 @@ func main() {
 		 	_ = x
 			n, _ := buf.ReadString('\n')
 			if n != ""{
-				handleQueries(n, conn, cnonce, cltPsw)	
+				fmt.Println(handleQueries(n, conn, cnonce, cltPsw))	
 			}
 		}
 	}
@@ -72,9 +53,9 @@ func authClient(auth string, cnonce string, clientPassword string) int {
 	respServer := computeResponse("127.0.0.1", username, clientPassword, cnonce)
 	fmt.Println("Response server: " + respServer + "\nResponse client: " + respClient)
 	if respServer == respClient{
-		return 200
+		return 1
 	} else {
-		return 888
+		return 0
 	}
 
 }
@@ -96,4 +77,87 @@ func computeResponse(ip string, username string, password string, cnonce string)
 	Response := hex.EncodeToString(response.Sum(nil))
 
 	return Response
+}
+
+func serverAnswer(code int, data string) string{
+	switch code{
+		case 69:
+			return "69 OK " + data 
+		case 51:
+			return "51 NOK"
+		case 333:
+			return "333 BADASS"
+		case 444:
+			return "444 BADAUTH"
+		case 555:
+			return "555 BADARGUMENT"
+		case 666:
+			return "666 INTERNALERROR"
+		case 777:
+			return "777 BADREQUEST"
+		case 888:
+			return "888 BADFORMAT"
+		case 999:
+			return "999 BADLANGUAGE"
+		default:
+			return "666 INTERNALERROR"
+	}
+}
+
+func handleQueries(query string, conn net.Conn, cnonce string, clientPass string) string {
+
+	queryArgs := strings.Split(strings.TrimSuffix(query, "\n"), " ")
+	if len(queryArgs) != 6{
+		return serverAnswer(777, "")
+	} else {
+		command := queryArgs[0]
+		language := queryArgs[1]
+		data := queryArgs[2]
+		output := queryArgs[3]
+		clientResponse := queryArgs[4]
+		username := queryArgs[5]
+
+		authQuery := "AUTH "+ username + " "+ clientResponse
+		if checkCommand(command) == false {
+			return serverAnswer(333, "")
+		}
+		if checkLanguages(language) == false {
+			return serverAnswer(999, "")
+		}
+		if checkOutput(output) == false {
+			return serverAnswer(555, "")
+		}
+		if authClient(authQuery, cnonce, clientPass) == 0{
+			return serverAnswer(444, "")
+		}
+		return serverAnswer(69, data)
+	}
+}
+
+func checkCommand(command string) bool{
+	if command != "SERIALIZE" && command != "UNSERIALIZE" {
+		return false
+	} else {
+		return true
+	}
+}
+
+func checkLanguages(language string) bool{
+
+	languages := make(map[int]string)
+	languages[0] = "Go"
+	for lng := range languages{
+		if language == languages[lng]{
+			return true
+		} 
+	}
+	return false
+}
+
+func checkOutput(output string) bool{
+	if output != "JSON" && output != "XML" && output != "Binary"{
+		return false
+	} else {
+		return true
+	}
 }

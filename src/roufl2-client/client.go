@@ -40,17 +40,18 @@ func main() {
 	if resp != ""{
 
 	}
-//	conn.Write([]byte("AUTH " + username +" " + resp))
-//	fmt.Println("AUTH " + username + " " + resp)
 	for{
 		buf := bufio.NewReader(os.Stdin)
-		fmt.Print("swagsoinsoin tmtc t connecté frr entre la requete bismillah\n=> ")
+		fmt.Print("Connected, enter query\n=> ")
 		query, err := buf.ReadString('\n')
 		if err != nil{
 			fmt.Println(err)
 		}
-		//conn.Write([]byte(query))
-		fmt.Fprintf(conn, query)
+		if query == "AUTH\n" {
+			fmt.Print("Your response is : ", resp, "\n")
+		} else {
+			fmt.Fprintf(conn, query)
+		}
 	}
 }
 
